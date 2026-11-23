@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
-use anchor_lang::solana_program::hash::hashv;
-use anchor_lang::system_program::{transfer, Transfer};
+use solana_program::hash::hashv;
+use anchor_lang::system_program::{create_account, transfer, CreateAccount, Transfer};
 use ephemeral_rollups_sdk::{
     anchor::{commit, delegate, ephemeral, vrf, vrf_callback},
     cpi::DelegateConfig,
@@ -64,53 +64,90 @@ pub mod ghostset_live {
             beneficiary_state[index] = beneficiary;
         }
 
-        let show = &mut ctx.accounts.show;
-        show.authority = ctx.accounts.authority.key();
-        show.show_id = show_id;
-        show.bump = ctx.bumps.show;
-        show.state = ShowState::Uninitialized;
-        show.vrf_status = VrfStatus::Idle;
-        show.round_phase = RoundPhase::Idle;
-        show.total_rounds = total_rounds;
-        show.current_round = 0;
-        show.closed_rounds = 0;
-        show.cancelled = false;
-        show.finalize_scheduled = false;
-        show.pledge_cap = pledge_cap;
-        show.commit_slots = commit_slots;
-        show.reveal_slots = reveal_slots;
-        show.seats = [Seat::default(); SEAT_COUNT];
-        show.tracks = track_state;
-        show.beneficiaries = beneficiary_state;
-        show.royalty_bps = ROYALTY_BPS;
-        show.royalty_pending = [0; BENEFICIARY_COUNT];
-        show.royalty_pending_total = 0;
-        show.credit_total = 0;
-        show.escrow_total = 0;
-        show.round_pool = 0;
-        show.liability_total = 0;
-        show.pledges = [Pledge::default(); SEAT_COUNT];
-        show.commit_deadline_slot = 0;
-        show.reveal_deadline_slot = 0;
-        show.round_open = false;
-        show.mystery_track = 0;
-        show.round_seed = [0; 32];
-        show.winners = [RoundResult::default(); MAX_ROUNDS];
-        show.random_seed = [0; 32];
-        show.vrf_request_nonce = 0;
-        show.vrf_caller_seed = [0; 32];
-        show.vrf_requested_at = 0;
-        show.validator = Pubkey::default();
+        let rent = Rent::get()?;
+        let show_id_bytes = show_id.to_le_bytes();
+        let show_bump = [ctx.bumps.show];
+        create_account(
+            CpiContext::new_with_signer(
+                ctx.accounts.system_program.key(),
+                CreateAccount {
+                    from: ctx.accounts.authority.to_account_info(),
+                    to: ctx.accounts.show.to_account_info(),
+                },
+                &[&[SHOW_SEED, show_id_bytes.as_slice(), show_bump.as_slice()]],
+            ),
+            rent.minimum_balance(Show::SPACE),
+            Show::SPACE as u64,
+            &ID,
+        )?;
+        let vault_bump = [ctx.bumps.vault];
+        create_account(
+            CpiContext::new_with_signer(
+                ctx.accounts.system_program.key(),
+                CreateAccount {
+                    from: ctx.accounts.authority.to_account_info(),
+                    to: ctx.accounts.vault.to_account_info(),
+                },
+                &[&[VAULT_SEED, show_id_bytes.as_slice(), vault_bump.as_slice()]],
+            ),
+            rent.minimum_balance(Vault::SPACE),
+            Vault::SPACE as u64,
+            &ID,
+        )?;
 
-        let vault = &mut ctx.accounts.vault;
-        vault.show_id = show_id;
-        vault.bump = ctx.bumps.vault;
-        vault.rent_minimum = Rent::get()?.minimum_balance(Vault::SPACE);
-        vault.total_liability = 0;
+        let show = Show {
+            authority: ctx.accounts.authority.key(),
+            show_id,
+            bump: ctx.bumps.show,
+            state: ShowState::Uninitialized,
+            vrf_status: VrfStatus::Idle,
+            round_phase: RoundPhase::Idle,
+            total_rounds,
+            current_round: 0,
+            closed_rounds: 0,
+            cancelled: false,
+            finalize_scheduled: false,
+            pledge_cap,
+            commit_slots,
+            reveal_slots,
+            seats: [Seat::default(); SEAT_COUNT],
+            tracks: track_state,
+            beneficiaries: beneficiary_state,
+            royalty_bps: ROYALTY_BPS,
+            royalty_pending: [0; BENEFICIARY_COUNT],
+            royalty_pending_total: 0,
+            credit_total: 0,
+            escrow_total: 0,
+            round_pool: 0,
+            liability_total: 0,
+            pledges: [Pledge::default(); SEAT_COUNT],
+            commit_deadline_slot: 0,
+            reveal_deadline_slot: 0,
+            round_open: false,
+            mystery_track: 0,
+            round_seed: [0; 32],
+            winners: [RoundResult::default(); MAX_ROUNDS],
+            random_seed: [0; 32],
+            vrf_request_nonce: 0,
+            vrf_caller_seed: [0; 32],
+            vrf_requested_at: 0,
+            validator: Pubkey::default(),
+        };
+        write_show(&ctx.accounts.show, &show)?;
+
+        let vault = Vault {
+            show_id,
+            bump: ctx.bumps.vault,
+            rent_minimum: rent.minimum_balance(Vault::SPACE),
+            total_liability: 0,
+        };
+        let mut data = ctx.accounts.vault.try_borrow_mut_data()?;
+        let mut writer: &mut [u8] = data.as_mut();
+        vault.try_serialize(&mut writer)?;
 
         emit!(ShowInitialized {
-            show: show.key(),
-            vault: vault.key(),
+            show: ctx.accounts.show.key(),
+            vault: ctx.accounts.vault.key(),
             show_id,
             total_rounds,
             pledge_cap,
@@ -152,7 +189,7 @@ pub mod ghostset_live {
         let vault = &mut ctx.accounts.vault;
         vault.total_liability = vault.total_liability.checked_add(amount).ok_or(GhostSetError::MathOverflow)?;
         assert_show_invariant(show)?;
-        assert_vault_covers(vault, vault.lamports())?;
+        assert_vault_covers(vault, vault.to_account_info().lamports())?;
 
         emit!(SeatJoined {
             show: show.key(),
@@ -649,10 +686,12 @@ pub mod ghostset_live {
 pub struct InitializeShow<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
-    #[account(init, payer = authority, space = Show::SPACE, seeds = [SHOW_SEED, show_id.to_le_bytes().as_slice()], bump)]
-    pub show: Account<'info, Show>,
-    #[account(init, payer = authority, space = Vault::SPACE, seeds = [VAULT_SEED, show_id.to_le_bytes().as_slice()], bump)]
-    pub vault: Account<'info, Vault>,
+    #[account(mut, seeds = [SHOW_SEED, show_id.to_le_bytes().as_slice()], bump)]
+    /// CHECK: The PDA is constrained by SHOW_SEED and show_id, created by the create_account CPI with this program as owner, and initialized by write_show.
+    pub show: UncheckedAccount<'info>,
+    #[account(mut, seeds = [VAULT_SEED, show_id.to_le_bytes().as_slice()], bump)]
+    /// CHECK: The PDA is constrained by VAULT_SEED and show_id, created by the create_account CPI with this program as owner, and manually serialized as Vault.
+    pub vault: UncheckedAccount<'info>,
     pub system_program: Program<'info, System>,
 }
 
@@ -675,7 +714,9 @@ pub struct DelegateShow<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
     #[account(mut, del, seeds = [SHOW_SEED, show_id.to_le_bytes().as_slice()], bump)]
-    pub show: AccountInfo<'info>,
+    /// CHECK: The PDA is constrained by SHOW_SEED and show_id; the handler verifies program ownership and uses read_show/write_show, while #[delegate] handles delegation.
+    pub show: UncheckedAccount<'info>,
+    /// CHECK: Optional local validator identity used only by #[delegate] for local delegation; None on devnet, and its data is never read.
     pub validator: Option<UncheckedAccount<'info>>,
 }
 
@@ -688,6 +729,7 @@ pub struct RequestShowRandomness<'info> {
     #[account(mut, seeds = [SHOW_SEED, show_id.to_le_bytes().as_slice()], bump = show.bump)]
     pub show: Account<'info, Show>,
     #[account(mut, constraint = oracle_queue.key() == vrf::consts::DEFAULT_EPHEMERAL_QUEUE || oracle_queue.key() == vrf::consts::DEFAULT_EPHEMERAL_TEST_QUEUE @ GhostSetError::InvalidOracleQueue)]
+    /// CHECK: The constraint restricts this ER VRF queue to DEFAULT_EPHEMERAL_QUEUE or DEFAULT_EPHEMERAL_TEST_QUEUE; its address is only passed to the VRF request CPI and its data is never read.
     pub oracle_queue: UncheckedAccount<'info>,
 }
 
@@ -829,10 +871,16 @@ pub struct Seat {
     pub joined: bool,
 }
 
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, Copy, Default, InitSpace)]
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, Copy, InitSpace)]
 pub struct Track {
     pub uri: [u8; 64],
     pub uri_len: u8,
+}
+
+impl Default for Track {
+    fn default() -> Self {
+        Self { uri: [0; 64], uri_len: 0 }
+    }
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Copy)]

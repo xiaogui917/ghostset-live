@@ -14,6 +14,7 @@ license = "MIT"
 anchor-lang = { version = "=1.0.2", features = ["init-if-needed"] }
 ephemeral-rollups-sdk = { version = "=0.18.0", features = ["anchor", "vrf", "access-control"] }
 magicsvm = "=0.3.0"
+solana-program = "=3.0.0"
 solana-sdk = "=3.0.0"
 
 [profile.dev]
