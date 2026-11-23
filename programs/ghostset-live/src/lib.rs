@@ -26,12 +26,14 @@ pub const BENEFICIARY_COUNT: usize = 3;
 pub const MAX_ROUNDS: usize = 8;
 pub const TOTAL_BPS: u16 = 10_000;
 pub const ROYALTY_BPS: [u16; BENEFICIARY_COUNT] = [5_000, 3_000, 2_000];
-pub const VRF_TIMEOUT_SECONDS: i64 = 180;
+pub const VRF_TIMEOUT_SECONDS: i64 = 600;
 // ER slots are about 10 ms, so 60,000 slots is about 10 minutes.
 pub const INACTIVITY_SLOTS: u64 = 60_000;
 // L1 slots are about 400 ms, so 216,000 slots is about 24 hours.
 pub const FUNDING_TIMEOUT_SLOTS: u64 = 216_000;
 pub const PROGRAM_IDENTITY: Pubkey = program_identity_pubkey(&crate::ID);
+pub const SCOPED_VRF_IDENTITY: Pubkey =
+    Pubkey::new_from_array(vrf::consts::scoped_vrf_identity_const(&crate::ID).0);
 
 #[ephemeral]
 #[program]
@@ -599,32 +601,36 @@ pub mod ghostset_live {
     }
 
     pub fn finalize_show(ctx: Context<FinalizeShow>, show_id: u64) -> Result<()> {
-        let show = &mut ctx.accounts.show;
+        let show_info = ctx.accounts.show.to_account_info();
+        require_keys_eq!(*show_info.owner, ID, GhostSetError::InvalidShowOwner);
+        let mut show = read_show(&show_info)?;
         require!(show.show_id == show_id, GhostSetError::ShowIdMismatch);
         require!(!show.finalize_scheduled, GhostSetError::ShowAlreadyFinalized);
         require!(matches!(show.state, ShowState::Delegated | ShowState::VrfReady | ShowState::Running), GhostSetError::InvalidState);
         require!(!show.round_open, GhostSetError::RoundAlreadyOpen);
         require!(show.cancelled || show.closed_rounds == show.total_rounds, GhostSetError::ShowNotFinalizable);
         require!(show.escrow_total == 0 && show.round_pool == 0, GhostSetError::LiabilityMismatch);
-        assert_show_invariant(show)?;
+        assert_show_invariant(&show)?;
 
-        let (show_key, liability_total) = {
-            show.state = ShowState::Finalizing;
-            emit!(ShowFinalizing {
-                show: show.key(),
-                cancelled: show.cancelled,
-            });
-            show.state = ShowState::OnL1;
-            show.finalize_scheduled = true;
-            (show.key(), show.liability_total)
-        };
+        let show_key = show_info.key();
+        let liability_total = show.liability_total;
+
+        emit!(ShowFinalizing {
+            show: show_key,
+            cancelled: show.cancelled,
+        });
+
+        show.state = ShowState::OnL1;
+        show.finalize_scheduled = true;
+        // 关键：必须在 Magic CPI 之前写盘；CPI 之后绝不能再写 show。
+        write_show(&show_info, &show)?;
 
         MagicIntentBundleBuilder::new(
             ctx.accounts.payer.to_account_info(),
             ctx.accounts.magic_context.to_account_info(),
             ctx.accounts.magic_program.to_account_info(),
         )
-        .commit_and_undelegate(&[ctx.accounts.show.to_account_info()])
+        .commit_and_undelegate(&[show_info])
         .build_and_invoke()?;
 
         emit!(ShowFinalized {
@@ -757,6 +763,8 @@ pub struct RequestShowRandomness<'info> {
 #[vrf_callback]
 #[derive(Accounts)]
 pub struct VrfCallback<'info> {
+    #[account(address = SCOPED_VRF_IDENTITY)]
+    pub vrf_program_identity: Signer<'info>,
     #[account(mut)]
     pub show: Account<'info, Show>,
 }
@@ -812,8 +820,9 @@ pub struct AbortShow<'info> {
 pub struct FinalizeShow<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
-    #[account(mut, seeds = [SHOW_SEED, show_id.to_le_bytes().as_slice()], bump = show.bump)]
-    pub show: Account<'info, Show>,
+    #[account(mut, seeds = [SHOW_SEED, show_id.to_le_bytes().as_slice()], bump)]
+    /// CHECK: PDA seeds verified; owner checked in handler; UncheckedAccount avoids ExternalAccountDataModified on exit.
+    pub show: UncheckedAccount<'info>,
 }
 
 #[derive(Accounts)]

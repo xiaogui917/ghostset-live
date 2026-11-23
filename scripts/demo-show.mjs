@@ -285,7 +285,7 @@ async function requestVrf() {
     .requestShowRandomness(SHOW_ID, Array.from(randomBytes(32)))
     .accounts({ payer: crew.house.publicKey, show: SHOW, oracleQueue: ORACLE_QUEUE, programIdentity, vrfProgram: VRF_PROGRAM, slotHashes: SYSVAR_SLOT_HASHES_PUBKEY, systemProgram: SystemProgram.programId })
     .rpc());
-  await waitFor("real VRF callback", 190_000, async () => {
+  await waitFor("real VRF callback", 660_000, async () => {
     const show = await readErShow();
     return show && enumKey(show.vrfStatus) === "ready" ? show : null;
   });
@@ -330,8 +330,10 @@ async function finalize() {
     .finalizeShow(SHOW_ID)
     .accounts({ payer: crew.house.publicKey, show: SHOW, magicProgram: MAGIC_PROGRAM, magicContext: MAGIC_CONTEXT })
     .rpc());
-  await waitFor("finalized Show account on L1", 180_000, async () => {
-    const show = await readL1Show();
+  await waitFor("finalized Show account on L1", 600_000, async () => {
+    const info = await l1.getAccountInfo(SHOW).catch(() => null);
+    if (!info || !info.owner.equals(PROGRAM_ID)) return null;
+    const show = decodeShow(info);
     return show && enumKey(show.state) === "onL1" && show.finalizeScheduled ? show : null;
   });
   await printStatus();
