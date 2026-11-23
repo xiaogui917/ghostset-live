@@ -20,7 +20,8 @@ const PLEDGE_CAP = 100_000_000;
 const JOIN_AMOUNT = 500_000_000;
 const COMMIT_SLOTS = new BN(2000);
 const REVEAL_SLOTS = new BN(2000);
-const SHOW_ID = new BN(randomBytes(8));
+const SHOW_ID = process.env.GHOSTSET_SHOW_ID ? new BN(process.env.GHOSTSET_SHOW_ID) : new BN(randomBytes(8));
+const RESUME = Boolean(process.env.GHOSTSET_SHOW_ID);
 const SHOW = pda("show", SHOW_ID);
 const VAULT = pda("vault", SHOW_ID);
 const idl = JSON.parse(readFileSync(new URL("../target/idl/ghostset_live.json", import.meta.url), "utf8"));
@@ -67,12 +68,12 @@ function loadKeypair(value, label) {
 }
 
 function loadCrew() {
-  const houseFile = new URL("../../.secrets/ghostset_house.json", import.meta.url);
+  const houseFile = new URL("../../../.secrets/ghostset_house.json", import.meta.url);
   const seatFiles = [
-    new URL("../../.secrets/ghostset_seat1.json", import.meta.url),
-    new URL("../../.secrets/ghostset_seat2.json", import.meta.url),
-    new URL("../../.secrets/ghostset_seat3.json", import.meta.url),
-    new URL("../../.secrets/ghostset_seat4.json", import.meta.url),
+    new URL("../../../.secrets/ghostset_seat1.json", import.meta.url),
+    new URL("../../../.secrets/ghostset_seat2.json", import.meta.url),
+    new URL("../../../.secrets/ghostset_seat3.json", import.meta.url),
+    new URL("../../../.secrets/ghostset_seat4.json", import.meta.url),
   ];
   const load = (file, label) => {
     try {
@@ -121,7 +122,9 @@ function sleep(ms) {
 function decodeShow(info) {
   if (!info) return null;
   try {
-    return program("L1", crew.house).coder.accounts.decode("Show", info.data);
+    // Anchor 0.32 coder.accounts.decode keys layouts by camelCase ("show"),
+    // not the IDL PascalCase name ("Show").
+    return program("L1", crew.house).account.show.coder.accounts.decode("show", info.data);
   } catch {
     return null;
   }
@@ -269,7 +272,7 @@ async function delegate() {
       systemProgram: SystemProgram.programId,
     })
     .rpc());
-  await waitFor("ER Show replica in Delegated state", 90_000, async () => {
+  await waitFor("ER Show replica in Delegated state", 900_000, async () => {
     const show = await readErShow();
     return show && enumKey(show.state) === "delegated" ? show : null;
   });
@@ -350,14 +353,21 @@ async function withdrawBeneficiary(index, signer, role) {
 
 async function main() {
   console.log("GhostSet Live · automated devnet performance");
+  if (RESUME) console.log(`RESUME mode · reusing delegated Show ${SHOW_ID.toString()}`);
   console.log(`Show ID: ${SHOW_ID.toString()}\nShow PDA: ${SHOW.toBase58()}\nVault PDA: ${VAULT.toBase58()}`);
   console.log(`Timing: ${COMMIT_SLOTS.toString()} commit slots + ${REVEAL_SLOTS.toString()} reveal slots per round`);
   crew = loadCrew();
-  await ensureFunds(crew.house, 250_000_000, "house");
-  for (let index = 0; index < 4; index += 1) await ensureFunds(crew.seats[index], 550_000_000, `seat ${index + 1}`);
-  await initialize();
-  for (let index = 0; index < 4; index += 1) await join(index);
-  await delegate();
+  if (RESUME) {
+    const show = await readErShow().catch(() => null) ?? await readL1Show().catch(() => null);
+    if (!show || enumKey(show.state) !== "delegated") throw new Error(`RESUME aborted: Show state is ${show ? enumKey(show.state) : "missing"}, expected delegated`);
+    console.log("[ER] resume verified · Show is Delegated, 4 seats joined, vault funded");
+  } else {
+    await ensureFunds(crew.house, 250_000_000, "house");
+    for (let index = 0; index < 4; index += 1) await ensureFunds(crew.seats[index], 550_000_000, `seat ${index + 1}`);
+    await initialize();
+    for (let index = 0; index < 4; index += 1) await join(index);
+    await delegate();
+  }
   await requestVrf();
 
   for (let round = 0; round < TOTAL_ROUNDS; round += 1) {
