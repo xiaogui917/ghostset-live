@@ -27,7 +27,21 @@ hashv(
 )
 ```
 
-每座位每回合 commit 时托管相同上限 `B`；有效 reveal 必须满足 `0 < amount <= B`，立即退回 `B - amount`。未揭示者的整个 `B` 在关回合时进入赞助池但不计分。得分为各曲目有效 pledge 的 `floor_sqrt(amount)` 之和，平局由最小 track ID 胜出。版税前两项按 bps 向下取整，尾差给视觉受益人。
+每座位每回合 commit 时托管相同上限 `B`；有效 reveal 必须满足 `0 < amount <= B`，立即退回 `B - amount`。未揭示者的整个 `B` 在关回合时进入赞助池但不计分。得分为各曲目有效 pledge 的 `floor_sqrt(amount)` 之和，得分并列时赢家固定取最小 track ID（确定性规则）。版税前两项按 bps 向下取整，尾差给视觉受益人。
+
+## 回合、取消与 VRF 规则
+
+- `commit_slots` 与 `reveal_slots` 均按 ER slot 计（约 10 ms/slot）；20 秒回合约 2,000 slot，且两者之和必须小于 `INACTIVITY_SLOTS` 的 60,000 slot。
+- `delegate_show` 与 `request_show_randomness` 须由同一脚本连续发送。若 authority 在委托成功后、请求 VRF 前掉线，`Delegated + Idle` 状态没有免许可超时通道，须由 authority 本人调用 `abort_show`（已知限制）。
+- 除 authority 可主动取消外，满足以下超时条件后，任意人均可调用 `abort_show`：
+
+| 状态或条件 | 超时规则 |
+| --- | --- |
+| `Funded` | 超过 216,000 L1 slot（约 24 小时） |
+| VRF 请求挂起（`vrf_status = Requested`） | 超过 180 秒 |
+| `VrfReady` / `Running` 无进展 | 超过 60,000 ER slot（约 10 分钟） |
+
+- MagicSVM 0.3.0 在本地不会履行 `ephemeral-rollups-sdk` 0.18.0 的 scoped VRF 请求；VRF 回调与多轮流程以 devnet 真实预言机的验证结果为准。
 
 ## 版本
 

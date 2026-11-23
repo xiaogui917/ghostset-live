@@ -51,6 +51,8 @@ pub mod ghostset_live {
         require!(total_rounds > 0 && total_rounds as usize <= MAX_ROUNDS, GhostSetError::InvalidRoundCount);
         require!(pledge_cap > 0, GhostSetError::InvalidPledgeCap);
         require!(commit_slots > 0 && reveal_slots > 0, GhostSetError::InvalidRoundTiming);
+        let max_round_slots = commit_slots.checked_add(reveal_slots).ok_or(GhostSetError::MathOverflow)?;
+        require!(max_round_slots < INACTIVITY_SLOTS, GhostSetError::InvalidRoundTiming);
         require!(tracks.len() == TRACK_COUNT, GhostSetError::InvalidTrackCount);
         require!(beneficiaries.len() == BENEFICIARY_COUNT, GhostSetError::InvalidBeneficiaryCount);
         require_eq!(ROYALTY_BPS.iter().copied().sum::<u16>(), TOTAL_BPS, GhostSetError::InvalidRoyaltyBps);
