@@ -27,6 +27,10 @@ pub const MAX_ROUNDS: usize = 8;
 pub const TOTAL_BPS: u16 = 10_000;
 pub const ROYALTY_BPS: [u16; BENEFICIARY_COUNT] = [5_000, 3_000, 2_000];
 pub const VRF_TIMEOUT_SECONDS: i64 = 180;
+// ER slots are about 10 ms, so 60,000 slots is about 10 minutes.
+pub const INACTIVITY_SLOTS: u64 = 60_000;
+// L1 slots are about 400 ms, so 216,000 slots is about 24 hours.
+pub const FUNDING_TIMEOUT_SLOTS: u64 = 216_000;
 pub const PROGRAM_IDENTITY: Pubkey = program_identity_pubkey(&crate::ID);
 
 #[ephemeral]
@@ -131,6 +135,7 @@ pub mod ghostset_live {
             vrf_request_nonce: 0,
             vrf_caller_seed: [0; 32],
             vrf_requested_at: 0,
+            last_progress_slot: Clock::get()?.slot,
             validator: Pubkey::default(),
         };
         write_show(&ctx.accounts.show, &show)?;
@@ -212,6 +217,7 @@ pub mod ghostset_live {
         let validator = ctx.accounts.validator.as_ref().map(|account| account.key());
         show.state = ShowState::Delegated;
         show.validator = validator.unwrap_or_default();
+        show.last_progress_slot = Clock::get()?.slot;
         write_show(&ctx.accounts.show, &show)?;
 
         let show_id_bytes = show_id.to_le_bytes();
@@ -301,6 +307,7 @@ pub mod ghostset_live {
         show.random_seed = randomness;
         show.vrf_status = VrfStatus::Ready;
         show.state = ShowState::VrfReady;
+        show.last_progress_slot = Clock::get()?.slot;
         emit!(RandomnessFulfilled {
             show: show.key(),
             nonce: request_nonce,
@@ -332,6 +339,7 @@ pub mod ghostset_live {
 
         show.state = ShowState::Running;
         show.current_round = round_index;
+        show.last_progress_slot = now;
         show.round_seed = round_seed;
         show.mystery_track = round_seed[0] % TRACK_COUNT as u8;
         show.pledges = [Pledge::default(); SEAT_COUNT];
@@ -464,7 +472,8 @@ pub mod ghostset_live {
         require!(show.show_id == show_id, GhostSetError::ShowIdMismatch);
         require!(show.state == ShowState::Running && !show.cancelled, GhostSetError::InvalidState);
         require!(show.round_open && show.round_phase != RoundPhase::Closed, GhostSetError::RoundNotOpen);
-        require!(Clock::get()?.slot > show.reveal_deadline_slot, GhostSetError::RoundNotClosable);
+        let now = Clock::get()?.slot;
+        require!(now > show.reveal_deadline_slot, GhostSetError::RoundNotClosable);
 
         let mut scores = [0u64; TRACK_COUNT];
         let mut forfeited_total = 0u64;
@@ -522,6 +531,7 @@ pub mod ghostset_live {
             royalties,
         };
         show.closed_rounds = show.closed_rounds.checked_add(1).ok_or(GhostSetError::MathOverflow)?;
+        show.last_progress_slot = now;
         show.round_open = false;
         show.round_phase = RoundPhase::Closed;
         assert_show_invariant(show)?;
@@ -539,11 +549,16 @@ pub mod ghostset_live {
     pub fn abort_show(ctx: Context<AbortShow>, show_id: u64) -> Result<()> {
         let show = &mut ctx.accounts.show;
         require!(show.show_id == show_id, GhostSetError::ShowIdMismatch);
-        require!(matches!(show.state, ShowState::Delegated | ShowState::VrfReady | ShowState::Running), GhostSetError::InvalidState);
+        require!(matches!(show.state, ShowState::Funded | ShowState::Delegated | ShowState::VrfReady | ShowState::Running), GhostSetError::InvalidState);
         require!(!show.cancelled, GhostSetError::ShowCancelled);
+        let now = Clock::get()?;
         let deadline = show.vrf_requested_at.checked_add(VRF_TIMEOUT_SECONDS).ok_or(GhostSetError::MathOverflow)?;
-        let timed_out = show.vrf_status == VrfStatus::Requested && Clock::get()?.unix_timestamp > deadline;
-        require!(ctx.accounts.payer.key() == show.authority || timed_out, GhostSetError::Unauthorized);
+        let timed_out = show.vrf_status == VrfStatus::Requested && now.unix_timestamp > deadline;
+        let funding_timed_out = show.state == ShowState::Funded
+            && now.slot > show.last_progress_slot.checked_add(FUNDING_TIMEOUT_SLOTS).ok_or(GhostSetError::MathOverflow)?;
+        let inactivity_timed_out = matches!(show.state, ShowState::VrfReady | ShowState::Running)
+            && now.slot > show.last_progress_slot.checked_add(INACTIVITY_SLOTS).ok_or(GhostSetError::MathOverflow)?;
+        require!(ctx.accounts.payer.key() == show.authority || timed_out || funding_timed_out || inactivity_timed_out, GhostSetError::Unauthorized);
 
         let mut refunded = 0u64;
         if show.round_open {
@@ -569,6 +584,10 @@ pub mod ghostset_live {
         show.round_phase = RoundPhase::Closed;
         show.cancelled = true;
         show.vrf_status = VrfStatus::Aborted;
+        if show.state == ShowState::Funded {
+            show.state = ShowState::OnL1;
+            show.finalize_scheduled = true;
+        }
         assert_show_invariant(show)?;
         emit!(ShowAborted {
             show: show.key(),
@@ -844,6 +863,7 @@ pub struct Show {
     pub vrf_request_nonce: u64,
     pub vrf_caller_seed: [u8; 32],
     pub vrf_requested_at: i64,
+    pub last_progress_slot: u64,
     pub validator: Pubkey,
 }
 
