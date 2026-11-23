@@ -1,0 +1,2332 @@
+{
+  "address": "J51DHXGLVp6biftQf9ZhWCqYeH1AF8xWaX95EboE9GM3",
+  "metadata": {
+    "name": "ghostset_live",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Sealed quadratic patronage with ephemeral rounds and L1 settlement"
+  },
+  "instructions": [
+    {
+      "name": "abort_show",
+      "discriminator": [
+        103,
+        129,
+        158,
+        4,
+        196,
+        201,
+        206,
+        225
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "show",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  104,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "show_id"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "show_id",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "close_round",
+      "discriminator": [
+        149,
+        14,
+        81,
+        88,
+        230,
+        226,
+        234,
+        37
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "show",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  104,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "show_id"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "show_id",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "commit_pledge",
+      "discriminator": [
+        66,
+        216,
+        236,
+        68,
+        106,
+        232,
+        0,
+        59
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "show",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  104,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "show_id"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "show_id",
+          "type": "u64"
+        },
+        {
+          "name": "seat_index",
+          "type": "u8"
+        },
+        {
+          "name": "commitment",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "delegate_show",
+      "discriminator": [
+        17,
+        28,
+        83,
+        161,
+        134,
+        81,
+        185,
+        190
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "buffer_show",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  117,
+                  102,
+                  102,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "show"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                253,
+                157,
+                61,
+                143,
+                218,
+                18,
+                59,
+                235,
+                91,
+                249,
+                205,
+                140,
+                163,
+                248,
+                89,
+                27,
+                86,
+                33,
+                15,
+                185,
+                54,
+                190,
+                132,
+                213,
+                188,
+                63,
+                30,
+                115,
+                164,
+                48,
+                104,
+                118
+              ]
+            }
+          }
+        },
+        {
+          "name": "delegation_record_show",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  101,
+                  108,
+                  101,
+                  103,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "show"
+              }
+            ],
+            "program": {
+              "kind": "account",
+              "path": "delegation_program"
+            }
+          }
+        },
+        {
+          "name": "delegation_metadata_show",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  101,
+                  108,
+                  101,
+                  103,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110,
+                  45,
+                  109,
+                  101,
+                  116,
+                  97,
+                  100,
+                  97,
+                  116,
+                  97
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "show"
+              }
+            ],
+            "program": {
+              "kind": "account",
+              "path": "delegation_program"
+            }
+          }
+        },
+        {
+          "name": "show",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  104,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "show_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "validator",
+          "optional": true
+        },
+        {
+          "name": "owner_program",
+          "address": "J51DHXGLVp6biftQf9ZhWCqYeH1AF8xWaX95EboE9GM3"
+        },
+        {
+          "name": "delegation_program",
+          "address": "DELeGGvXpWV2fqJUhqcF5ZSYMS4JTLjteaAMARRSaeSh"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "show_id",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "finalize_show",
+      "discriminator": [
+        92,
+        246,
+        180,
+        156,
+        154,
+        128,
+        156,
+        175
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "show",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  104,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "show_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "magic_program",
+          "address": "Magic11111111111111111111111111111111111111"
+        },
+        {
+          "name": "magic_context",
+          "writable": true,
+          "address": "MagicContext1111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "show_id",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "initialize_show",
+      "discriminator": [
+        10,
+        255,
+        57,
+        178,
+        112,
+        8,
+        191,
+        41
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "show",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  104,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "show_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "show_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "show_id",
+          "type": "u64"
+        },
+        {
+          "name": "total_rounds",
+          "type": "u8"
+        },
+        {
+          "name": "pledge_cap",
+          "type": "u64"
+        },
+        {
+          "name": "commit_slots",
+          "type": "u64"
+        },
+        {
+          "name": "reveal_slots",
+          "type": "u64"
+        },
+        {
+          "name": "tracks",
+          "type": {
+            "vec": {
+              "defined": {
+                "name": "TrackInput"
+              }
+            }
+          }
+        },
+        {
+          "name": "beneficiaries",
+          "type": {
+            "vec": "pubkey"
+          }
+        }
+      ]
+    },
+    {
+      "name": "join_show",
+      "discriminator": [
+        151,
+        24,
+        172,
+        29,
+        98,
+        138,
+        241,
+        19
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "show",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  104,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "show_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "show_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "show_id",
+          "type": "u64"
+        },
+        {
+          "name": "seat_index",
+          "type": "u8"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "open_round",
+      "discriminator": [
+        66,
+        235,
+        123,
+        240,
+        8,
+        35,
+        185,
+        159
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "show",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  104,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "show_id"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "show_id",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "process_undelegation",
+      "discriminator": [
+        196,
+        28,
+        41,
+        206,
+        48,
+        37,
+        51,
+        167
+      ],
+      "accounts": [
+        {
+          "name": "base_account",
+          "writable": true
+        },
+        {
+          "name": "buffer",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  110,
+                  100,
+                  101,
+                  108,
+                  101,
+                  103,
+                  97,
+                  116,
+                  101,
+                  45,
+                  98,
+                  117,
+                  102,
+                  102,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "base_account"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                181,
+                183,
+                0,
+                225,
+                242,
+                87,
+                58,
+                192,
+                204,
+                6,
+                34,
+                1,
+                52,
+                74,
+                207,
+                151,
+                184,
+                53,
+                6,
+                235,
+                140,
+                229,
+                25,
+                152,
+                204,
+                98,
+                126,
+                24,
+                147,
+                128,
+                167,
+                62
+              ]
+            }
+          }
+        },
+        {
+          "name": "payer",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "account_seeds",
+          "type": {
+            "vec": "bytes"
+          }
+        }
+      ]
+    },
+    {
+      "name": "request_show_randomness",
+      "discriminator": [
+        120,
+        129,
+        207,
+        148,
+        155,
+        252,
+        192,
+        118
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "show",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  104,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "show_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "oracle_queue",
+          "writable": true
+        },
+        {
+          "name": "program_identity",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  105,
+                  100,
+                  101,
+                  110,
+                  116,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "vrf_program",
+          "address": "Vrf1RNUjXmQGjmQrQLvJHs9SNkvDJEsRVFPkfSQUwGz"
+        },
+        {
+          "name": "slot_hashes",
+          "address": "SysvarS1otHashes111111111111111111111111111"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "show_id",
+          "type": "u64"
+        },
+        {
+          "name": "client_seed",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "reveal_pledge",
+      "discriminator": [
+        67,
+        219,
+        39,
+        182,
+        125,
+        108,
+        112,
+        232
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "show",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  104,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "show_id"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "show_id",
+          "type": "u64"
+        },
+        {
+          "name": "seat_index",
+          "type": "u8"
+        },
+        {
+          "name": "track",
+          "type": "u8"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "secret",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "vrf_callback",
+      "discriminator": [
+        248,
+        224,
+        55,
+        227,
+        56,
+        10,
+        108,
+        36
+      ],
+      "accounts": [
+        {
+          "name": "vrf_program_identity",
+          "docs": [
+            "Scoped VRF identity PDA, bound to this program. Its presence as a signer proves",
+            "the callback was issued by the VRF program for this program."
+          ],
+          "signer": true
+        },
+        {
+          "name": "show",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "randomness",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "request_nonce",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "withdraw",
+      "discriminator": [
+        183,
+        18,
+        70,
+        156,
+        148,
+        109,
+        161,
+        34
+      ],
+      "accounts": [
+        {
+          "name": "recipient",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "show",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  104,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "show_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "show_id"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "show_id",
+          "type": "u64"
+        },
+        {
+          "name": "kind",
+          "type": {
+            "defined": {
+              "name": "WithdrawKind"
+            }
+          }
+        },
+        {
+          "name": "index",
+          "type": "u8"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Show",
+      "discriminator": [
+        171,
+        128,
+        239,
+        156,
+        241,
+        58,
+        221,
+        199
+      ]
+    },
+    {
+      "name": "Vault",
+      "discriminator": [
+        211,
+        8,
+        232,
+        43,
+        2,
+        152,
+        117,
+        119
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "PledgeCommitted",
+      "discriminator": [
+        230,
+        120,
+        166,
+        182,
+        143,
+        51,
+        182,
+        141
+      ]
+    },
+    {
+      "name": "PledgeRevealed",
+      "discriminator": [
+        141,
+        190,
+        45,
+        106,
+        209,
+        119,
+        153,
+        212
+      ]
+    },
+    {
+      "name": "RandomnessFulfilled",
+      "discriminator": [
+        61,
+        67,
+        128,
+        142,
+        15,
+        77,
+        223,
+        252
+      ]
+    },
+    {
+      "name": "RandomnessRequested",
+      "discriminator": [
+        10,
+        64,
+        183,
+        29,
+        104,
+        63,
+        90,
+        149
+      ]
+    },
+    {
+      "name": "RoundClosed",
+      "discriminator": [
+        45,
+        243,
+        28,
+        22,
+        132,
+        70,
+        175,
+        226
+      ]
+    },
+    {
+      "name": "RoundOpened",
+      "discriminator": [
+        99,
+        173,
+        228,
+        72,
+        142,
+        57,
+        109,
+        178
+      ]
+    },
+    {
+      "name": "SeatJoined",
+      "discriminator": [
+        254,
+        189,
+        73,
+        248,
+        103,
+        13,
+        114,
+        168
+      ]
+    },
+    {
+      "name": "ShowAborted",
+      "discriminator": [
+        224,
+        112,
+        45,
+        184,
+        79,
+        41,
+        80,
+        137
+      ]
+    },
+    {
+      "name": "ShowClosed",
+      "discriminator": [
+        142,
+        15,
+        65,
+        75,
+        65,
+        182,
+        29,
+        201
+      ]
+    },
+    {
+      "name": "ShowDelegated",
+      "discriminator": [
+        1,
+        115,
+        83,
+        198,
+        176,
+        224,
+        50,
+        229
+      ]
+    },
+    {
+      "name": "ShowFinalized",
+      "discriminator": [
+        215,
+        56,
+        112,
+        122,
+        213,
+        235,
+        83,
+        118
+      ]
+    },
+    {
+      "name": "ShowFinalizing",
+      "discriminator": [
+        60,
+        240,
+        160,
+        143,
+        96,
+        48,
+        168,
+        75
+      ]
+    },
+    {
+      "name": "ShowInitialized",
+      "discriminator": [
+        3,
+        108,
+        98,
+        167,
+        121,
+        99,
+        161,
+        9
+      ]
+    },
+    {
+      "name": "Withdrawn",
+      "discriminator": [
+        20,
+        89,
+        223,
+        198,
+        194,
+        124,
+        219,
+        13
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidState",
+      "msg": "The instruction is not valid in the current show state"
+    },
+    {
+      "code": 6001,
+      "name": "InvalidRoundPhase",
+      "msg": "The instruction is not valid in the current round phase"
+    },
+    {
+      "code": 6002,
+      "name": "ShowIdMismatch",
+      "msg": "The show id does not match the PDA"
+    },
+    {
+      "code": 6003,
+      "name": "InvalidShowOwner",
+      "msg": "The show account owner is invalid"
+    },
+    {
+      "code": 6004,
+      "name": "Unauthorized",
+      "msg": "The signer is not authorized for this action"
+    },
+    {
+      "code": 6005,
+      "name": "ShowCancelled",
+      "msg": "The show has been cancelled"
+    },
+    {
+      "code": 6006,
+      "name": "InvalidRoundCount",
+      "msg": "The round count must be between one and MAX_ROUNDS"
+    },
+    {
+      "code": 6007,
+      "name": "InvalidPledgeCap",
+      "msg": "The pledge cap must be positive"
+    },
+    {
+      "code": 6008,
+      "name": "InvalidRoundTiming",
+      "msg": "Round durations must be positive"
+    },
+    {
+      "code": 6009,
+      "name": "InvalidTrackCount",
+      "msg": "Exactly three tracks are required"
+    },
+    {
+      "code": 6010,
+      "name": "InvalidTrackMetadata",
+      "msg": "Track metadata is empty or exceeds its fixed buffer"
+    },
+    {
+      "code": 6011,
+      "name": "InvalidBeneficiaryCount",
+      "msg": "Exactly three beneficiaries are required"
+    },
+    {
+      "code": 6012,
+      "name": "InvalidBeneficiary",
+      "msg": "The beneficiary or beneficiary index is invalid"
+    },
+    {
+      "code": 6013,
+      "name": "DuplicateBeneficiary",
+      "msg": "Beneficiaries must be distinct"
+    },
+    {
+      "code": 6014,
+      "name": "InvalidRoyaltyBps",
+      "msg": "Royalty basis points must sum to exactly 10000"
+    },
+    {
+      "code": 6015,
+      "name": "InvalidSeat",
+      "msg": "The seat index is invalid"
+    },
+    {
+      "code": 6016,
+      "name": "SeatAlreadyJoined",
+      "msg": "The seat has already joined"
+    },
+    {
+      "code": 6017,
+      "name": "SeatNotJoined",
+      "msg": "The seat has not joined"
+    },
+    {
+      "code": 6018,
+      "name": "DuplicateSeat",
+      "msg": "A seat authority may join only once"
+    },
+    {
+      "code": 6019,
+      "name": "SeatsNotFilled",
+      "msg": "All four seats must join before delegation"
+    },
+    {
+      "code": 6020,
+      "name": "InsufficientDeposit",
+      "msg": "The initial deposit must cover at least one pledge cap"
+    },
+    {
+      "code": 6021,
+      "name": "InsufficientCredit",
+      "msg": "The seat does not have enough credit"
+    },
+    {
+      "code": 6022,
+      "name": "AlreadyCommitted",
+      "msg": "The seat has already committed in this round"
+    },
+    {
+      "code": 6023,
+      "name": "NotCommitted",
+      "msg": "The seat has not committed in this round"
+    },
+    {
+      "code": 6024,
+      "name": "AlreadyRevealed",
+      "msg": "The seat has already revealed in this round"
+    },
+    {
+      "code": 6025,
+      "name": "InvalidCommitment",
+      "msg": "The commitment must be nonzero"
+    },
+    {
+      "code": 6026,
+      "name": "InvalidReveal",
+      "msg": "The reveal does not match the domain-separated commitment"
+    },
+    {
+      "code": 6027,
+      "name": "InvalidTrack",
+      "msg": "The track index is invalid"
+    },
+    {
+      "code": 6028,
+      "name": "InvalidPledgeAmount",
+      "msg": "The pledge amount must be positive and no greater than the cap"
+    },
+    {
+      "code": 6029,
+      "name": "CommitPhaseClosed",
+      "msg": "The commit phase has closed"
+    },
+    {
+      "code": 6030,
+      "name": "RevealPhaseNotOpen",
+      "msg": "The reveal phase has not opened"
+    },
+    {
+      "code": 6031,
+      "name": "RevealPhaseClosed",
+      "msg": "The reveal phase has closed"
+    },
+    {
+      "code": 6032,
+      "name": "RoundNotClosable",
+      "msg": "The reveal deadline has not passed"
+    },
+    {
+      "code": 6033,
+      "name": "RoundAlreadyOpen",
+      "msg": "A round is already open"
+    },
+    {
+      "code": 6034,
+      "name": "RoundNotOpen",
+      "msg": "No round is open"
+    },
+    {
+      "code": 6035,
+      "name": "NoRoundsRemaining",
+      "msg": "No rounds remain"
+    },
+    {
+      "code": 6036,
+      "name": "ShowNotFinalizable",
+      "msg": "The show is not ready to finalize"
+    },
+    {
+      "code": 6037,
+      "name": "ShowAlreadyFinalized",
+      "msg": "Finalization has already been scheduled"
+    },
+    {
+      "code": 6038,
+      "name": "VrfAlreadyRequested",
+      "msg": "Randomness has already been requested"
+    },
+    {
+      "code": 6039,
+      "name": "VrfNotRequested",
+      "msg": "No randomness request is pending"
+    },
+    {
+      "code": 6040,
+      "name": "VrfRequestMismatch",
+      "msg": "The callback nonce does not match the pending request"
+    },
+    {
+      "code": 6041,
+      "name": "VrfCallbackExpired",
+      "msg": "The randomness callback arrived after its accepted deadline"
+    },
+    {
+      "code": 6042,
+      "name": "VrfNotReady",
+      "msg": "Randomness is not ready"
+    },
+    {
+      "code": 6043,
+      "name": "InvalidOracleQueue",
+      "msg": "The oracle queue does not match the ER runtime"
+    },
+    {
+      "code": 6044,
+      "name": "MathOverflow",
+      "msg": "Checked arithmetic overflowed or underflowed"
+    },
+    {
+      "code": 6045,
+      "name": "LiabilityMismatch",
+      "msg": "The tracked liabilities do not match the account details"
+    },
+    {
+      "code": 6046,
+      "name": "InsufficientVaultFunds",
+      "msg": "The vault does not cover all outstanding liabilities"
+    },
+    {
+      "code": 6047,
+      "name": "VaultRentViolation",
+      "msg": "The vault rent-exempt minimum cannot be spent"
+    },
+    {
+      "code": 6048,
+      "name": "NothingToWithdraw",
+      "msg": "There is no balance to withdraw"
+    }
+  ],
+  "types": [
+    {
+      "name": "Pledge",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "commitment",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "committed",
+            "type": "bool"
+          },
+          {
+            "name": "revealed",
+            "type": "bool"
+          },
+          {
+            "name": "forfeited",
+            "type": "bool"
+          },
+          {
+            "name": "track",
+            "type": "u8"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "escrow",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PledgeCommitted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "show",
+            "type": "pubkey"
+          },
+          {
+            "name": "round_index",
+            "type": "u8"
+          },
+          {
+            "name": "seat_index",
+            "type": "u8"
+          },
+          {
+            "name": "escrow",
+            "type": "u64"
+          },
+          {
+            "name": "commitment",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "PledgeRevealed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "show",
+            "type": "pubkey"
+          },
+          {
+            "name": "round_index",
+            "type": "u8"
+          },
+          {
+            "name": "seat_index",
+            "type": "u8"
+          },
+          {
+            "name": "track",
+            "type": "u8"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RandomnessFulfilled",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "show",
+            "type": "pubkey"
+          },
+          {
+            "name": "nonce",
+            "type": "u64"
+          },
+          {
+            "name": "random_seed",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "RandomnessRequested",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "show",
+            "type": "pubkey"
+          },
+          {
+            "name": "nonce",
+            "type": "u64"
+          },
+          {
+            "name": "caller_seed",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "RoundClosed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "show",
+            "type": "pubkey"
+          },
+          {
+            "name": "round_index",
+            "type": "u8"
+          },
+          {
+            "name": "winner_track",
+            "type": "u8"
+          },
+          {
+            "name": "scores",
+            "type": {
+              "array": [
+                "u64",
+                3
+              ]
+            }
+          },
+          {
+            "name": "pool",
+            "type": "u64"
+          },
+          {
+            "name": "royalties",
+            "type": {
+              "array": [
+                "u64",
+                3
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "RoundOpened",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "show",
+            "type": "pubkey"
+          },
+          {
+            "name": "round_index",
+            "type": "u8"
+          },
+          {
+            "name": "mystery_track",
+            "type": "u8"
+          },
+          {
+            "name": "round_seed",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "commit_deadline_slot",
+            "type": "u64"
+          },
+          {
+            "name": "reveal_deadline_slot",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RoundPhase",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Idle"
+          },
+          {
+            "name": "Commit"
+          },
+          {
+            "name": "Reveal"
+          },
+          {
+            "name": "Closed"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RoundResult",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "winner_track",
+            "type": "u8"
+          },
+          {
+            "name": "mystery_track",
+            "type": "u8"
+          },
+          {
+            "name": "scores",
+            "type": {
+              "array": [
+                "u64",
+                3
+              ]
+            }
+          },
+          {
+            "name": "pool",
+            "type": "u64"
+          },
+          {
+            "name": "royalties",
+            "type": {
+              "array": [
+                "u64",
+                3
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Seat",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "credit",
+            "type": "u64"
+          },
+          {
+            "name": "joined",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SeatJoined",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "show",
+            "type": "pubkey"
+          },
+          {
+            "name": "seat_index",
+            "type": "u8"
+          },
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Show",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "show_id",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "state",
+            "type": {
+              "defined": {
+                "name": "ShowState"
+              }
+            }
+          },
+          {
+            "name": "vrf_status",
+            "type": {
+              "defined": {
+                "name": "VrfStatus"
+              }
+            }
+          },
+          {
+            "name": "round_phase",
+            "type": {
+              "defined": {
+                "name": "RoundPhase"
+              }
+            }
+          },
+          {
+            "name": "total_rounds",
+            "type": "u8"
+          },
+          {
+            "name": "current_round",
+            "type": "u8"
+          },
+          {
+            "name": "closed_rounds",
+            "type": "u8"
+          },
+          {
+            "name": "cancelled",
+            "type": "bool"
+          },
+          {
+            "name": "finalize_scheduled",
+            "type": "bool"
+          },
+          {
+            "name": "pledge_cap",
+            "type": "u64"
+          },
+          {
+            "name": "commit_slots",
+            "type": "u64"
+          },
+          {
+            "name": "reveal_slots",
+            "type": "u64"
+          },
+          {
+            "name": "seats",
+            "type": {
+              "array": [
+                {
+                  "defined": {
+                    "name": "Seat"
+                  }
+                },
+                4
+              ]
+            }
+          },
+          {
+            "name": "tracks",
+            "type": {
+              "array": [
+                {
+                  "defined": {
+                    "name": "Track"
+                  }
+                },
+                3
+              ]
+            }
+          },
+          {
+            "name": "beneficiaries",
+            "type": {
+              "array": [
+                "pubkey",
+                3
+              ]
+            }
+          },
+          {
+            "name": "royalty_bps",
+            "type": {
+              "array": [
+                "u16",
+                3
+              ]
+            }
+          },
+          {
+            "name": "royalty_pending",
+            "type": {
+              "array": [
+                "u64",
+                3
+              ]
+            }
+          },
+          {
+            "name": "royalty_pending_total",
+            "type": "u64"
+          },
+          {
+            "name": "credit_total",
+            "type": "u64"
+          },
+          {
+            "name": "escrow_total",
+            "type": "u64"
+          },
+          {
+            "name": "round_pool",
+            "type": "u64"
+          },
+          {
+            "name": "liability_total",
+            "type": "u64"
+          },
+          {
+            "name": "pledges",
+            "type": {
+              "array": [
+                {
+                  "defined": {
+                    "name": "Pledge"
+                  }
+                },
+                4
+              ]
+            }
+          },
+          {
+            "name": "commit_deadline_slot",
+            "type": "u64"
+          },
+          {
+            "name": "reveal_deadline_slot",
+            "type": "u64"
+          },
+          {
+            "name": "round_open",
+            "type": "bool"
+          },
+          {
+            "name": "mystery_track",
+            "type": "u8"
+          },
+          {
+            "name": "round_seed",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "winners",
+            "type": {
+              "array": [
+                {
+                  "defined": {
+                    "name": "RoundResult"
+                  }
+                },
+                8
+              ]
+            }
+          },
+          {
+            "name": "random_seed",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "vrf_request_nonce",
+            "type": "u64"
+          },
+          {
+            "name": "vrf_caller_seed",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "vrf_requested_at",
+            "type": "i64"
+          },
+          {
+            "name": "last_progress_slot",
+            "type": "u64"
+          },
+          {
+            "name": "validator",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ShowAborted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "show",
+            "type": "pubkey"
+          },
+          {
+            "name": "refunded",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ShowClosed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "show",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ShowDelegated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "show",
+            "type": "pubkey"
+          },
+          {
+            "name": "validator",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ShowFinalized",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "show",
+            "type": "pubkey"
+          },
+          {
+            "name": "liability_total",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ShowFinalizing",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "show",
+            "type": "pubkey"
+          },
+          {
+            "name": "cancelled",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ShowInitialized",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "show",
+            "type": "pubkey"
+          },
+          {
+            "name": "vault",
+            "type": "pubkey"
+          },
+          {
+            "name": "show_id",
+            "type": "u64"
+          },
+          {
+            "name": "total_rounds",
+            "type": "u8"
+          },
+          {
+            "name": "pledge_cap",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ShowState",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Uninitialized"
+          },
+          {
+            "name": "Funded"
+          },
+          {
+            "name": "Delegated"
+          },
+          {
+            "name": "VrfReady"
+          },
+          {
+            "name": "Running"
+          },
+          {
+            "name": "Finalizing"
+          },
+          {
+            "name": "OnL1"
+          },
+          {
+            "name": "Closed"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Track",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "uri",
+            "type": {
+              "array": [
+                "u8",
+                64
+              ]
+            }
+          },
+          {
+            "name": "uri_len",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TrackInput",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "uri",
+            "type": {
+              "array": [
+                "u8",
+                64
+              ]
+            }
+          },
+          {
+            "name": "uri_len",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Vault",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "show_id",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "rent_minimum",
+            "type": "u64"
+          },
+          {
+            "name": "total_liability",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "VrfStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Idle"
+          },
+          {
+            "name": "Requested"
+          },
+          {
+            "name": "Ready"
+          },
+          {
+            "name": "Aborted"
+          }
+        ]
+      }
+    },
+    {
+      "name": "WithdrawKind",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Seat"
+          },
+          {
+            "name": "Beneficiary"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Withdrawn",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "show",
+            "type": "pubkey"
+          },
+          {
+            "name": "recipient",
+            "type": "pubkey"
+          },
+          {
+            "name": "kind",
+            "type": {
+              "defined": {
+                "name": "WithdrawKind"
+              }
+            }
+          },
+          {
+            "name": "index",
+            "type": "u8"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    }
+  ]
+}
