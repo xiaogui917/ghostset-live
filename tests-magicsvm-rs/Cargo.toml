@@ -10,4 +10,6 @@ ghostset-live = { path = "../programs/ghostset-live", features = ["no-entrypoint
 anchor-lang.workspace = true
 ephemeral-rollups-sdk.workspace = true
 magicsvm.workspace = true
+solana-message = "4.4.1"
 solana-sdk.workspace = true
+solana-transaction = "4.1.6"

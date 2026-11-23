@@ -1879,7 +1879,9 @@ dependencies = [
  "ephemeral-rollups-sdk 0.18.0",
  "ghostset-live",
  "magicsvm",
+ "solana-message 4.4.1",
  "solana-sdk",
+ "solana-transaction 4.1.6",
 ]
 
 [[package]]

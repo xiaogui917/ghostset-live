@@ -14,12 +14,12 @@ mod tests {
         SHOW_SEED, VAULT_SEED,
     };
     use magicsvm::{MagicSVM, TransactionTarget};
+    use solana_message::{Message, VersionedMessage};
     use solana_sdk::{
         instruction::Instruction,
-        message::Message,
         signature::{Keypair, Signer as _},
-        transaction::Transaction,
     };
+    use solana_transaction::versioned::VersionedTransaction;
     use std::str::FromStr;
 
     const SHOW_ID: u64 = 42;
@@ -76,7 +76,7 @@ mod tests {
                 oracle_queue: DEFAULT_EPHEMERAL_TEST_QUEUE,
                 program_identity: PROGRAM_IDENTITY,
                 vrf_program: VRF_PROGRAM_ID,
-                slot_hashes: anchor_lang::solana_program::sysvar::slot_hashes::ID,
+                slot_hashes: Pubkey::from_str("SysvarS1otHashes111111111111111111111111111").unwrap(),
                 system_program: system_program::ID,
             }
             .to_account_metas(None),
@@ -86,8 +86,61 @@ mod tests {
             }
             .data(),
         };
+        let simulation_blockhash = svm.latest_blockhash_for(TransactionTarget::Ephemeral);
+        let simulation_message = Message::new_with_blockhash(
+            &[request.clone()],
+            Some(&authority.pubkey()),
+            &simulation_blockhash,
+        );
+        let simulation_account_keys = simulation_message.account_keys.clone();
+        let simulation_transaction = VersionedTransaction::try_new(
+            VersionedMessage::Legacy(simulation_message),
+            &[&authority],
+        )
+        .unwrap();
+        let simulation = svm
+            .simulate_transaction_to(TransactionTarget::Ephemeral, simulation_transaction)
+            .unwrap();
+        println!("simulation result: {simulation:#?}");
+        println!(
+            "simulation inner_instructions count={}",
+            simulation.meta.inner_instructions.len()
+        );
+        for (outer_index, group) in simulation.meta.inner_instructions.iter().enumerate() {
+            for (index, inner) in group.iter().enumerate() {
+                let compiled = &inner.instruction;
+                let program_id = simulation_account_keys
+                    .get(compiled.program_id_index as usize)
+                    .map(|pubkey| pubkey.to_string())
+                    .unwrap_or_else(|| "<invalid program_id_index>".to_string());
+                println!(
+                    "simulation inner[outer={outer_index}, index={index}]: program_id_index={}, program_id={}, data_len={}, data[0]={:?}",
+                    compiled.program_id_index,
+                    program_id,
+                    compiled.data.len(),
+                    compiled.data.first(),
+                );
+            }
+        }
         send(&mut svm, TransactionTarget::Ephemeral, &authority, request);
-        let _callback_results = svm.warp_to_slot(100);
+
+        let requested_account = svm
+            .get_account_for(TransactionTarget::Ephemeral, &show)
+            .expect("show must be readable on ER after VRF request");
+        let requested = decode_show(&requested_account.data);
+        println!(
+            "after request: vrf_status={:?}, vrf_request_nonce={:?}, vrf_requested_at={:?}",
+            requested.vrf_status, requested.vrf_request_nonce, requested.vrf_requested_at
+        );
+
+        let callback_results = svm.warp_to_slot(1_000_000);
+        println!(
+            "warp_to_slot(100) returned {} fulfillment result(s)",
+            callback_results.len()
+        );
+        for (index, result) in callback_results.iter().enumerate() {
+            println!("fulfillment result[{index}]: {result:?}");
+        }
 
         let account = svm
             .get_account_for(TransactionTarget::Ephemeral, &show)
@@ -105,7 +158,7 @@ mod tests {
             concat!(env!("CARGO_MANIFEST_DIR"), "/../target/deploy/ghostset_live.so"),
         )
         .unwrap();
-        let authority = Keypair::generate();
+        let authority = Keypair::new();
         svm.airdrop(&authority.pubkey(), 5_000_000_000).unwrap();
         let show = Pubkey::find_program_address(&[SHOW_SEED, SHOW_ID.to_le_bytes().as_slice()], &ID).0;
         let vault = Pubkey::find_program_address(&[VAULT_SEED, SHOW_ID.to_le_bytes().as_slice()], &ID).0;
@@ -133,10 +186,10 @@ mod tests {
         send(&mut svm, TransactionTarget::Base, &authority, initialize);
 
         let seats = [
-            Keypair::generate(),
-            Keypair::generate(),
-            Keypair::generate(),
-            Keypair::generate(),
+            Keypair::new(),
+            Keypair::new(),
+            Keypair::new(),
+            Keypair::new(),
         ];
         for (index, seat) in seats.iter().enumerate() {
             svm.airdrop(&seat.pubkey(), 2_000_000_000).unwrap();
@@ -168,9 +221,9 @@ mod tests {
                 show,
                 validator: Some(validator),
                 owner_program: ID,
-                buffer_pda,
-                delegation_record_pda,
-                delegation_metadata_pda,
+                buffer_show: buffer_pda,
+                delegation_record_show: delegation_record_pda,
+                delegation_metadata_show: delegation_metadata_pda,
                 delegation_program: ephemeral_rollups_sdk::id(),
                 system_program: system_program::ID,
             }
@@ -182,11 +235,10 @@ mod tests {
     }
 
     fn send(svm: &mut MagicSVM, target: TransactionTarget, payer: &Keypair, instruction: Instruction) {
-        let transaction = Transaction::new(
-            &[payer],
-            Message::new(&[instruction], Some(&payer.pubkey())),
-            svm.latest_blockhash_for(target),
-        );
+        let blockhash = svm.latest_blockhash_for(target);
+        let message = Message::new_with_blockhash(&[instruction], Some(&payer.pubkey()), &blockhash);
+        let transaction =
+            VersionedTransaction::try_new(VersionedMessage::Legacy(message), &[payer]).unwrap();
         svm.send_transaction_to(target, transaction).unwrap();
     }
 
