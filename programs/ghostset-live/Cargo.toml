@@ -1,0 +1,22 @@
+[package]
+name = "ghostset-live"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Sealed quadratic patronage with ephemeral rounds and L1 settlement"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "ghostset_live"
+
+[features]
+default = []
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+idl-build = ["anchor-lang/idl-build"]
+
+[dependencies]
+anchor-lang.workspace = true
+ephemeral-rollups-sdk.workspace = true

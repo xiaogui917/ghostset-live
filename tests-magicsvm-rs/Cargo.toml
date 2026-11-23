@@ -1,0 +1,13 @@
+[package]
+name = "ghostset-live-magicsvm"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+ghostset-live = { path = "../programs/ghostset-live", features = ["no-entrypoint"] }
+anchor-lang.workspace = true
+ephemeral-rollups-sdk.workspace = true
+magicsvm.workspace = true
+solana-sdk.workspace = true

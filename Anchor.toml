@@ -1,0 +1,20 @@
+[toolchain]
+anchor_version = "1.0.2"
+solana_version = "3.1.9"
+
+[features]
+resolution = true
+skip-lint = false
+
+[programs.devnet]
+ghostset_live = "J51DHXGLVp6biftQf9ZhWCqYeH1AF8xWaX95EboE9GM3"
+
+[programs.localnet]
+ghostset_live = "J51DHXGLVp6biftQf9ZhWCqYeH1AF8xWaX95EboE9GM3"
+
+[provider]
+cluster = "devnet"
+wallet = "~/.config/solana/id.json"
+
+[scripts]
+test = "cargo +stable test --manifest-path tests-magicsvm-rs/Cargo.toml"

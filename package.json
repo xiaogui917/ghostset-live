@@ -1,0 +1,10 @@
+{
+  "name": "ghostset-live",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Sealed quadratic patronage on MagicBlock Ephemeral Rollups",
+  "scripts": {
+    "build": "anchor build --ignore-keys",
+    "test": "cargo +stable test --manifest-path tests-magicsvm-rs/Cargo.toml"
+  }
+}
