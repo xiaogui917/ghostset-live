@@ -10,7 +10,7 @@
   （PDA `FjUMyQQA5ioFRqXG7cMETki1jB4FPc9661LdXWf8mtu3`）：
   delegate、VRF 请求与回调、3 回合、finalize、7 笔 withdraw
   全部成功；show 已 closed、liabilities 0、2 SOL 已返还。
-  完成时间 2026-11-26 约 09:05 HKT。
+  完成时间 2026-11-26 约 08:48 HKT。
 - **提交计划：2026-11-26。** 比赛截止 2026-11-27 22:00 HKT。
   go/no-go：**GO**（EU ER 现场演示已完成）；NO-GO（US ER）。
 - **本地测试：** MagicSVM 生命周期测试通过（2026-11-26 复跑，

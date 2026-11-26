@@ -114,7 +114,7 @@
     状态 `onL1`；随后 7 笔 withdraw（4 座位 credit + DJ / 作曲 /
     视觉版税）全部成功，liabilities 2 SOL → 0 SOL，
     show 最终状态 `closed`。
-  - 链上复核（2026-11-26 约 09:05 HKT）：show 在 L1 上
+  - 链上复核（2026-11-26 约 08:49 HKT）：show 在 L1 上
     `state=closed, vrf=ready, closedRounds=3, liabilities=0`；
     house 余额 10.9075 → 11.2911 SOL，4 座位合计约 2.004 SOL，
     全队总额 13.307 → 13.295 SOL（差额约 0.012 SOL 为交易费），
@@ -130,7 +130,7 @@
 
 ## 8. go/no-go（2026-11-26）
 
-- **GO（EU ER 现场演示）**：EU demo 已于 2026-11-26 约 09:05 HKT
+- **GO（EU ER 现场演示）**：EU demo 已于 2026-11-26 约 08:48 HKT
   完整跑通（3 回合 + finalize + 7 笔 withdraw，liabilities 归零，
   show 已 closed，资金已返还）。以 EU show 的完整流程记录
   + 本报告 + 公开仓库提交。
