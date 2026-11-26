@@ -107,20 +107,38 @@
   - **EU ER `request_show_randomness` 成功，VRF 回调已送达，
     状态 `vrfReady / vrf=ready`**——这是自 11-23 23:01 以来
     第一次成功的 ER 写 + VRF 回调；
-  - 第 1 回合 open / commit / reveal 全部在 EU ER 上成功。
+  - 第 1–3 回合 open / commit / reveal / close 全部在 EU ER 上成功
+    （第 1 回合胜者 Neon Arithmetic，第 2 回合 Glass Cathedral，
+    第 3 回合 Midnight Signal；VRF 谜题曲各回合均已揭示）；
+  - `finalize_show`（commit + undelegate）成功，show 回到 L1，
+    状态 `onL1`；随后 7 笔 withdraw（4 座位 credit + DJ / 作曲 /
+    视觉版税）全部成功，liabilities 2 SOL → 0 SOL，
+    show 最终状态 `closed`。
+  - 链上复核（2026-11-26 约 09:05 HKT）：show 在 L1 上
+    `state=closed, vrf=ready, closedRounds=3, liabilities=0`；
+    house 余额 10.9075 → 11.2911 SOL，4 座位合计约 2.004 SOL，
+    全队总额 13.307 → 13.295 SOL（差额约 0.012 SOL 为交易费），
+    2 SOL 托管金已全数返还。
+  - 唯一瑕疵：demo 脚本最后一步读 vault 结算汇总时报
+    `Account not found: Vault`——因最终 withdraw 后 vault 数据
+    已不再是可解码的 Vault 结构（账户本身仍在，余 rent
+    817,880 lamports）。业务流本身 100% 完成，属脚本收尾打印
+    的容错问题，不影响演示结论；已记为后续修复项。
+  - 完整终端日志：`docs/eu-demo-20261126.log`，视频见 `docs/eu-demo-20261126.mp4`。
 - 结论：故障孤立在 US 区域 ER；EU 区域 ER 读写、VRF 均正常。
   项目已切换到 EU ER 做完整现场演示，不再依赖 US ER。
 
 ## 8. go/no-go（2026-11-26）
 
-- **GO（EU ER 现场演示）**：EU demo 正在进行；完成后以 EU show
-  的完整流程（initialize → join → delegate → VRF → 3 回合 →
-  finalize → withdraw）+ 本报告 + 公开仓库提交。
+- **GO（EU ER 现场演示）**：EU demo 已于 2026-11-26 约 09:05 HKT
+  完整跑通（3 回合 + finalize + 7 笔 withdraw，liabilities 归零，
+  show 已 closed，资金已返还）。以 EU show 的完整流程记录
+  + 本报告 + 公开仓库提交。
 - **NO-GO（US ER 现场演示）**：US ER 写故障已持续约 57.6 小时，
   官方状态面全绿、无事故通报；旧 show 的 2.0 SOL 回收与 demo show
   的 VRF 验证在 US ER 恢复前无法完成。
 - 降级预案（本地 MagicSVM 录像 + 本报告 + 公开仓库）已就绪；
-  如 EU demo 完成则不再需要降级提交。
+  EU demo 已完成，不再需要降级提交。
 
 ## 9. 待办
 
@@ -128,7 +146,9 @@
 - [x] 官方渠道事故通报核查（文档 / Discord / 状态 API）：无通报，状态面盲区已证实
 - [ ] 向官方报障：文本已备好（`BUG_REPORT_MAGICBLOCK.md`），待主会话经浏览器发 Discord / GitHub issue
 - [x] 备用验证人独立端点：MUS3hc9 即 US 验证人本身，无独立端点；B 路关闭
-- [ ] EU demo 完成并记录最终状态（show、vault、交易签名）
+- [x] EU demo 完成并记录最终状态（show closed、liabilities 0、
+      资金已返还；日志 `docs/eu-demo-20261126.log`、视频
+      `docs/eu-demo-20261126.mp4`）
 - [ ] 公开仓库 ghostset-live 建仓推送（待主会话经浏览器建仓）
 - [ ] 11-26 提交（提交页须 Telegram 登录；钱包地址填 0x93Be…e867；如需钱包连接/签名则停手）
 - [ ] US ER 恢复后：回收两局旧 show 的 4.0 SOL，复验 demo show 的 requestVrf
@@ -137,7 +157,7 @@
 
 - 探针与会诊记录：`scripts/er-probe.mjs`、`scripts/eu-write-probe.mjs`、
   `scripts/demo-show.mjs`、`consult-kimi-20261124.md`、`consult-gemini-20261124.md`
-- 探针日志：`/tmp/er-probe-20261126-0840.log`、`/tmp/eu-probe-20261126-2.log`、
-  `/tmp/eu-demo-20261126.log`
+- 探针日志：`docs/er-probe-20261126.log`、`docs/eu-write-probe-20261126.log`、
+  `docs/eu-demo-20261126.log`（视频 `docs/eu-demo-20261126.mp4`）
 - 当日记录：`~/workspace/agent-earn/state.md`（2026-11-26 Blitz 条）、
   `STATUS.md`
