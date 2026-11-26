@@ -38,6 +38,6 @@
 
 - [x] EU demo 完成并记录最终状态与交易签名
 - [x] 公开仓库建仓推送（2026-11-26 08:53 HKT，已推 master）
-- [ ] 向 MagicBlock 官方报障（文本见 BUG_REPORT_MAGICBLOCK.md，主会话浏览器发）
-- [ ] 11-26 提交
+- [x] 向 MagicBlock 官方报障（2026-11-26 08:55 HKT，issue #344：https://github.com/magicblock-labs/ephemeral-rollups-sdk/issues/344）
+- [ ] 11-26 提交（进行中：卡在 Telegram 登录确认，等大哥在 Telegram App 确认或扫码）
 - [ ] US ER 恢复后回收旧 show 4.0 SOL
