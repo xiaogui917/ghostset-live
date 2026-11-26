@@ -4,7 +4,7 @@ import { createHash, randomBytes, randomInt } from "node:crypto";
 import { readFileSync } from "node:fs";
 
 const L1_RPC = "https://api.devnet.solana.com";
-const ER_RPC = "https://devnet-us.magicblock.app";
+const ER_RPC = process.env.GHOSTSET_ER_RPC || "https://devnet-us.magicblock.app";
 const PROGRAM_ID = new PublicKey("J51DHXGLVp6biftQf9ZhWCqYeH1AF8xWaX95EboE9GM3");
 const DEVNET_VALIDATOR = new PublicKey("MUS3hc9TCw4cGC12vHNoYcCGzJG1txjgQLZWVoeNHNd");
 const VALIDATOR = process.env.GHOSTSET_VALIDATOR ? new PublicKey(process.env.GHOSTSET_VALIDATOR) : null;
