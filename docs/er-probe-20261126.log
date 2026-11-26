@@ -1,0 +1,15 @@
+ER slot: 1163539526 -> 1163540094 (delta 568 in 5s)
+demo show 16727413064812048144: state=delegated vrf=idle cancelled=false liabilities=2000000000
+old show 14440634207599454842: state=delegated vrf=idle cancelled=false liabilities=2000000000
+Simulating abort_show for old show 14440634207599454842 on ER (Anchor .simulate()) ...
+SIM RESULT: failed
+  message: ""
+  name: Error
+  simulationResponse: {"err":{"InstructionError":[0,"Immutable"]},"logs":["Program J51DHXGLVp6biftQf9ZhWCqYeH1AF8xWaX95EboE9GM3 invoke [1]","Program log: Instruction: AbortShow","Program data: 4HAtuE8pUImkIWmdMtJsRcRSB4+cnyTSq4elxGzmjzZTgmtBs1UqyAAAAAAAAAAA","Program J51DHXGLVp6biftQf9ZhWCqYeH1AF8xWaX95EboE9GM3 consumed 6882 of 200000 compute units","Program J51DHXGLVp6biftQf9ZhWCqYeH1AF8xWaX95EboE9GM3 failed: Account is immutable"],"accounts":null,"unitsConsumed":6882,"loadedAccountsDataSize":null,"returnData":null,"innerInstructions":null,"replacementBlockhash":null,"fee":null,"preBalances":null,"postBalances":null,"preTokenBalances":null,"postTokenBalances":null,"loadedAddresses":null}
+  full: {"stack":"Error\n    at AnchorProvider.simulate (/home/hatch/workspace/agent-earn/magicblock-blitz/ghostset-live/node_modules/@coral-xyz/anchor/dist/cjs/provider.js:233:19)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async MethodsBuilder.simulate [as _simulateFn] (/home/hatch/workspace/agent-earn/magicblock-blitz/ghostset-live/node_modules/@coral-xyz/anchor/dist/cjs/program/namespace/simulate.js:17:24)\n    at async main (file:///home/hatch/workspace/agent-earn/magicblock-blitz/ghostset-live/scripts/er-probe.mjs:67:17)","simulationResponse":{}}
+  stack: Error
+      at AnchorProvider.simulate (/home/hatch/workspace/agent-earn/magicblock-blitz/ghostset-live/node_modules/@coral-xyz/anchor/dist/cjs/provider.js:233:19)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async MethodsBuilder.simulate [as _simulateFn] (/home/hatch/workspace/agent-earn/magicblock-blitz/ghostset-live/node_modules/@coral-xyz/anchor/dist/cjs/program/namespace/simulate.js:17:24)
+      at async main (file:///home/hatch/workspace/agent-earn/magicblock-blitz/ghostset-live/scripts/er-probe.mjs:67:17)
+VERDICT: ER STILL DOWN (Account is immutable)
