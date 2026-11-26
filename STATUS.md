@@ -15,8 +15,7 @@
   go/no-go：**GO**（EU ER 现场演示已完成）；NO-GO（US ER）。
 - **本地测试：** MagicSVM 生命周期测试通过（2026-11-26 复跑，
   1 passed / 0 failed / 1 ignored），录像在 `docs/`。
-- **公开仓库：** 待主会话经浏览器建仓 `ghostset-live` 后推送
-  （本地已提交，remote 待建）。
+- **公开仓库：** https://github.com/xiaogui917/ghostset-live（已建好并推送，master HEAD c8713ed，2026-11-26 08:53 HKT）。
 
 ## 资金（devnet 测试 SOL）
 
@@ -38,7 +37,7 @@
 ## 待办
 
 - [x] EU demo 完成并记录最终状态与交易签名
-- [ ] 公开仓库建仓推送（主会话浏览器）
+- [x] 公开仓库建仓推送（2026-11-26 08:53 HKT，已推 master）
 - [ ] 向 MagicBlock 官方报障（文本见 BUG_REPORT_MAGICBLOCK.md，主会话浏览器发）
 - [ ] 11-26 提交
 - [ ] US ER 恢复后回收旧 show 4.0 SOL
